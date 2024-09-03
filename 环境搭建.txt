@@ -2,3 +2,6 @@ QT-VS环境搭建：
 	安装好纯qt的环境（安装的时候要勾选msvc相关的）
 	安装好vs的环境
 	vs安装qt vs Tools插件 选择到安装qt的路径即可
+虚拟机+Windows10环境搭建：
+
+虚拟机+Ubuntu 24.04环境搭建：
