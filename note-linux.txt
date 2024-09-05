@@ -1,0 +1,19 @@
+sudo vi /etc/vim/vimrc 修改配置文件
+set ts=4    //设置tab为4个空格，或者set tabstop=4，tab默认是8个空格
+set expandtab //将tab扩展成空格
+set shiftwidth=4    //每一级缩进是4个空格
+"set nu //显示文件行数
+
+
+在linux中使用命令下载
+    git gcc g++ markdown
+    使用命令sudo apt install git/gcc/g++
+    
+在linux中使用图形化工具使用git
+	Gitkraken:可以清晰的看见每个文件的状态
+	从官网下载Gitkraken，然后使用命令dpkg -i install解压本地安装
+	
+虚拟机和宿主机之间的复制粘贴：
+	虚拟机->设置CD/DVD(SATA)：选择使用IOS镜像，选择VMWare安装路径下的一个linux.ios文件
+	重启虚拟机，点击VMware Tools光盘 解压.gz压缩包 cd进去 有一个vmware-install.pl 使用命令运行	
+	sudo ./vmware-install.pl然后一直安装完成 重启电脑
