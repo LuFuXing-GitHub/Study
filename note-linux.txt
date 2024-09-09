@@ -39,3 +39,5 @@ linux访问不了github解决方法：
 		下载nscd	sudo apt install nscd
 		sudo /etc/init.d/nscd restart
 		即可访问GitHub
+		
+问题：若访问不了则再执行https://sites.ipaddress.com/github.com/#ipinfo查看github的ip 然后再次修改hosts文件
