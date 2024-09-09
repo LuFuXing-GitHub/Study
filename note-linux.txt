@@ -17,3 +17,27 @@ set shiftwidth=4    //每一级缩进是4个空格
 	虚拟机->设置CD/DVD(SATA)：选择使用IOS镜像，选择VMWare安装路径下的一个linux.ios文件
 	重启虚拟机，点击VMware Tools光盘 解压.gz压缩包 cd进去 有一个vmware-install.pl 使用命令运行	
 	sudo ./vmware-install.pl然后一直安装完成 重启电脑
+	
+	
+linux访问不了github解决方法：
+	仅用于主机可以访问GitHub而虚拟机无法访问GitHub时
+	1.查询github.com的ip地址 
+		https://sites.ipaddress.com/github.com/#ipinfo
+	2.查询github.global.ssl.fastly.net的ip地址
+		https://sites.ipaddress.com/fastly.net/#ipinfo
+	3.将查询到的IP地址加入到hosts文件里
+	4.sudo vim /etc/hosts //如下所示
+		#github
+		140.82.114.4 github.com
+		151.101.1.6 github.global.ssl.fastly.net
+		151.101.65.6 github.global.ssl.fastly.net
+		151.101.129.6 github.global.ssl.fastly.net
+		151.101.193.6 github.global.ssl.fastly.net
+	5.重启网络服务
+		/etc/init.d/networking restart //该方法一般会失败
+		使用下面的方法
+		下载nscd	sudo apt install nscd
+		sudo /etc/init.d/nscd restart
+		即可访问GitHub
+		
+问题：若访问不了则再执行https://sites.ipaddress.com/github.com/#ipinfo查看github的ip 然后再次修改hosts文件
