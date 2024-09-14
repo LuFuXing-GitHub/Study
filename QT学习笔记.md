@@ -360,3 +360,26 @@ QFileDialog文件对话框：
     }
 ```
 
+**如何使用Qt creator创建和使用Qt C++库**
+
+```C++
+创建->选择library，到Details这里选择要创建的库类型，动态库、静态库、qt插件
+    动静态库这里不做过多解释，vs阶段已经学过
+    qt插件-Qt Plugin也是一种动态库，可以将其理解为Qt特有的一种动态库，与普通动态库在实现上略有差异
+    
+   	静态库(Linked Library)创建
+    	直接选择静态库模板，进去之后直接在头文件里面声明类、函数、变量等
+    动态库(Shared Linked Library)创建
+    	创建成功后，Qt会自动创建三个文件，xx.h xx.cpp xx_qt_global.h
+    	在xx_qt_global.h头文件里面Qt会自动创建动态库编译宏，只需在xx.h文件里编写对外的接口函数、类、变量即可
+    
+    
+    如何调用库
+    	在即将调用库的程序里，修改.pro文件：
+    	LIBS += -LE:\Projects\Qt_creator\library\build-lib_for_qt-Desktop_Qt_5_14_2_MinGW_32_bit-Debug\debug -lliblib_for_qt	//大写的L表示库所在的路径 小写的l表示库的名字，且不需要加扩展名
+    	INCLUDEPATH += //头文件的路径
+	qmake:右键->执行qmake
+        会生成makefile文件，他会去读当前项目的.pro配置文件，比如需要依赖哪些库，就会生成对应的makefile文件，在执行构建的时候会执行makefile文件
+                       
+```
+
