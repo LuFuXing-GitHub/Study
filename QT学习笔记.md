@@ -380,6 +380,7 @@ QFileDialog文件对话框：
     	INCLUDEPATH += //头文件的路径
 	qmake:右键->执行qmake
         会生成makefile文件，他会去读当前项目的.pro配置文件，比如需要依赖哪些库，就会生成对应的makefile文件，在执行构建的时候会执行makefile文件
-                       
+
+        总结就是：qmake生成的makefile文件会编译当前项目的文件，就跟正常的makefile文件一样，但是如果该项目有依赖外部库，makefile并不会编译其他项目来生成库
 ```
 
