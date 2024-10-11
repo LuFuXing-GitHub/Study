@@ -124,12 +124,12 @@ QCombobox
 ```c++
 QPlanTextEdit和QTextEdit
 QPlanTextEdit:纯文本编辑器 不带格式 不能插入图片 超链接等 适用场景：处理大量文字 如服务器日志输出
-QTextEdit：文本编辑器 带格式 支持图片 文字字体、颜色、字号 超链接等 是用场景：处理复杂文字
+QTextEdit：文本编辑器 带格式 支持图片 文字字体、颜色、字号 超链接等 使用场景：处理复杂文字
 ```
 
 ```c++
 QToolButton
-    相较于QPushButton，QToolButton拥有更多的显示风格、如图标、文字的组合，同时可以搭配QActiopn，与之关联后功能更为强大
+    相较于QPushButton，QToolButton拥有更多的显示风格、如图标、文字的组合，同时可以搭配QAction，与之关联后功能更为强大
 	适用场景：菜单栏 工具栏 QToolButton关联
 
 QAction-项：非常有用的一个类
