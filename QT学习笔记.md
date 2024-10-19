@@ -384,3 +384,27 @@ QFileDialog文件对话框：
         总结就是：qmake生成的makefile文件会编译当前项目的文件，就跟正常的makefile文件一样，但是如果该项目有依赖外部库，makefile并不会编译其他项目来生成库
 ```
 
+Qt如何开发Android手机应用
+
+```C++
+默认使用Qt creator开发
+    打开工具->选项->设备，右边选择Android，下载三个东西
+    JDK(JAva相关):
+	SDK:网站进不去，网盘下载别人的资源
+	NDK:网站进不去，网盘下载别人的资源
+        
+    下载好后直接安装JDK，有两个安装的，不知道啥原因，但是安装好后Qt creator会自动识别到JDK的路径，SDK和NDK一样，点击exe选择路径，之后会在路径下生成安装包，解压该安装包
+    配置好三个路径
+        
+        
+        
+   	创建新的工程，编译器选择Android
+        
+    在首次编译项目的时候Qt会下载一个gradle构建工具，这个工具下载的奇慢无比，可以去镜像下载对应的版本，下载完成之后，将这个压缩包放到默认路径下，Windows下是：
+        C:\Users\用户名\.gradle\wrapper\dists\gradle-5.5.1-bin\cfsov38hb3r1zj4ic9bbjcc7n
+        我的是
+        C:\Users\卢福兴\.gradle\wrapper\dists\gradle-5.5.1-bin\cfsov38hb3r1zj4ic9bbjcc7n
+            注意是将整个压缩包放到这里，编译的时候Qt会自己解压
+        
+```
+
