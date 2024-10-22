@@ -414,3 +414,11 @@ Qt如何开发Android手机应用
        
 ```
 
+背景图设置不成功原因：
+
+```C++
+在designer中设置背景图，且看见了效果，但是运行起来的时候却没有背景图，这是因为Qt不让设置最高等级为QWidget或者QMainWindow的设置背景图，因为其他所有的控件都会继承父类，都会有这个背景图效果，解决方法：
+    1.设置完之后调用一个函数setAttribute(Qt::WA_StyledBackground);这个属性什么意思呢？我们查阅帮助文档得知，意思就是告诉窗口，应该使用设置的样式表进行渲染控件背景
+    2.在构造函数中使用代码设置样式表setStyleSheet("background-image: url(:/pic/log.jpg);");
+```
+
