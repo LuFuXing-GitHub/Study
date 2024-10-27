@@ -422,3 +422,82 @@ Qt如何开发Android手机应用
     2.在构造函数中使用代码设置样式表setStyleSheet("background-image: url(:/pic/log.jpg);");
 ```
 
+Qt如何发布程序
+
+```C++
+用mingw编译：
+    将可执行程序直接放到某个文件夹下，添加对应编译器的bin目录到环境变量Path里面，比如用的是mingw64，就在Path里添加D:\Qt\5.14.2\mingw73_64\bin，然后进入cmd，输入命令：windeployqt xx.exe(就是你的可执行程序名称)，之后QT的这个windeployqt就会把当前程序所需要的动态库以及一些文件复制到当前路径下，然后删除环境变量里这个值，双击打开程序，还是会提示缺库，缺的库在对应的编译器目录下，比如这里就从D:\Qt\5.14.2\mingw73_64\bin下寻找丢失的库，一个一个复制过来进行测试。
+    打开程序测试没问题之后，就可以进行下一步制作安装程序。
+```
+
+TCP通信
+
+```C++
+由于TCP是面向连接、可靠的通信方式，所有是C/S结构
+服务器端：
+    头文件：
+    #include<QTcpSocket>	//服务器端与客户端通信套接字
+    #include<QTcpServer>	//TCP服务器类
+    #include <QHostAddress>	//IP类
+    
+    流程如下：
+    	初始化服务器端，设置监听客户端的ip和端口，连接信号与槽；
+    	1.QTcpServer *server = new QTcpServer(this);
+    	2.if(server->listen(QHostAddress::Any,8888));
+			//Any：监听客户端IP地址 这里的QHostAddress::Any表示监听任意IP地址的客户端，也可以直接填IP地址，比如192.168.2.6，表示只监听IP为此的客户端
+			//8888：端口号，设置服务器的端口号，所有连接到此的客户端都需要这个端口号来进行连接，如果填0则表示端口号由服务器自动分配，可以通过函数打印查看分配到的端口号，但是实际使用不建议这样做，因为这会导致客户端无法连接
+		3.QTcpServer::newConnection信号
+            //该信号表示有客户端连接的信号，可在槽函数里做相应逻辑处理
+            void ChatWithMe_Server::slots_newConnection()
+            {
+                QTcpSocket* nSocket = m_server->nextPendingConnection();
+                m_listSocket.push_back(nSocket);
+                connect(nSocket, &QTcpSocket::readyRead, this, &ChatWithMe_Server::slots_hasDataReceived);
+                qDebug() << u8"IP地址为：" << nSocket->peerAddress();
+                qDebug() << u8"端口号为：" << nSocket->peerPort();
+            
+                QHostInfo info = QHostInfo::fromName(nSocket->peerAddress().toString());
+                qDebug() << u8"主机名称为：" << info.hostName();
+            }
+		4.QTcpServer::nextPendingConnection()函数
+            //使用该函数获取当前连接成功的客户端套接字，后续通信则全通过该套接字进行
+        5.QTcpSocket::readyRead信号
+            //该信号表示当前套接字中有数据被发送过来，可在槽函数里进行消息的接收、显示到ui上等操作
+        6.QTcpSocket::disconnected信号
+            //该信号表示当前客户端断开连接，可适当打印或者弹框提示
+            
+ 客户端：
+	头文件：
+    	#include<QTcpSocket>	//只需一个其实就够了 通信套接字
+            
+    流程如下：
+            初始化套接字，连接服务器，连接信号与槽
+            1.QTcpSocket* socket = new QTcpSocket(this);
+			2.QTcpSocket::connectToHost();
+            //这里有两种连接到服务器的方式
+			方式一：使用IP地址连接，直接填入服务器端的IP地址和端口号
+            	socket->connectToHost(192.168.6.6,5566);
+			方式二：使用服务器的主机名连接
+                socket->connectToHost("DESKTOP-PN0MM4N",5566);
+            方式一连接可能会导致服务器端使用dsn域名解析的时候解析不到客户端的主机名
+            3.QTcpSocket::connected信号
+                //该信号表示当前客户端连接服务器成功，可在槽函数中做调试打印或弹框提示
+            4.QTcpSocket::readyRead信号
+            //该信号表示当前套接字中有数据被发送过来，可在槽函数里进行消息的接收、显示到ui上等操作
+        	5.QTcpSocket::disconnected信号
+            //该信号表示当前客户端断开连接，可适当打印或者弹框提示
+            
+           QTcpSocket::write()//通过套接字发送数据
+           QString类型的需要进行转换，
+                QString data = u8"你好";
+				socket->write(data.toUtf8());
+			接收显示的时候：
+				QByteArry msg = socket->readAll();
+				ui.lineEdit->setText(QString::fromUtf8(msg));
+			实际上可以看出来，由于TCP套接字通信使用的是QByteArry字节数组，而平时打字用的是QString所以需要转换，QString转到
+QbyteArray用的是toUtf8()，QByteArray转到QString用的是QString::fromUtf8();
+
+
+
+```
+
