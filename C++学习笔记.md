@@ -46,3 +46,47 @@ Qt的lambda表达式就是从这里C++的特性引出的
 
 ```
 
+C++中调用线程
+
+```C++
+#include<thread>
+	1.创建线程 std::thread thread1(func*,arg1);
+	这里创建线程的时候需要传入两个参数，第一个参数为某个函数，表示线程开始就调用某个函数开始执行，第二个参数为调用函数的参数
+        void myPrintf(std::string msg)
+        {
+            std::cout << msg << std::endl;
+        }
+
+        int main()
+        {
+            std::thread thread1(myPrint,"hello!!");
+        	return 0 ;
+        }
+	//上述代码在实际运行过程中会报错，因为线程的执行顺序是不一定的，程序执行起来后，执行线程thread1，有可能thread1的函数还没执行完主线程就已经return了，所以导致出错。
+	2.join() 特点：阻塞态
+        将上述代码修改：
+        void myPrintf(std::string msg)
+        {
+            std::cout << msg << std::endl;
+        }
+
+        int main()
+        {
+            std::thread thread1(myPrint,"hello!!");
+            thread1.join();
+        	return 0 ;
+        }
+join()函数用于等待子线程执行完毕，就是说在主线程会等待调用该函数的子线程执行完毕，阻塞；注意，如果线程已经执行结束，再次调用join函数会导致未定义行为，所以一般会在确保线程未结束时调用。
+    3.detach() 特点：非阻塞，用法和join一样，不同点是detach不会等待线程执行结束，会将主线程与子线程分离，主线程执行结束后子线程依然在后台执行，实际使用detach很少
+    4.joinable():作用：判断当前线程是否可以调用join或者detach函数，返回值bool类型
+    	一般在大型项目里面都会判断一下再使用join或者detach，如果在不能调用join和detach的时候调用了，那么会报system_error的错误，有哪些情况不能调用？
+    	1.线程已经结束
+    	2.如果线程在调用之前已经被销毁，此时再调用就会崩溃
+    	3.再同一个线程中调用join，自己不能在自己的线程函数中调用join
+    	4.多次调用
+    	5.被detach分离之后的线程不能再调用join，因为此时线程已经被分离出主线程，已经独立运行，主线程无法再等待他执行完成
+    
+    5.线程函数参数为引用类型时，传入一个局部变量则会报错或者直接编译不通过，原因是线程
+    
+```
+
