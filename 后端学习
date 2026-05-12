@@ -1,0 +1,159 @@
+后端学习
+
+项目架构
+
+```tex
+前端(Vue/React) -Http请求-> Controller(控制层) --> Service(业务逻辑层) --> DAO(数据访问层) --> Database(MySQL)
+```
+
+```python
+Controller(控制层):
+	接收HTTP请求，放回HTTP响应
+	例：@fmsFinancialInitializeController.get(
+    '/list', response_model=PageResponseModel, dependencies=[Depends(CheckUserInterfaceAuth('fms:fmsFinancialInitialize:list'))]
+)
+async def get_fms_financial_initialize_list(
+    request: Request,
+    fms_financial_initialize_page_query: FmsFinancialInitializePageQueryModel = Depends(FmsFinancialInitializePageQueryModel.as_query),
+    query_db: AsyncSession = Depends(get_db),
+):
+    # 获取分页数据
+    fms_financial_initialize_page_query_result = await FmsFinancialInitializeService.get_fms_financial_initialize_list_services(query_db, fms_financial_initialize_page_query, is_page=True)
+    logger.info('获取成功')
+
+    return ResponseUtil.success(model_content=fms_financial_initialize_page_query_result)
+
+做的事：
+定义路由 GET /fms/fmsFinancialInitialize/list
+权限验证 CheckUserInterfaceAuth
+调用 Service 层
+统一封装返回格式 ResponseUtil.success()
+```
+
+```python
+Service (业务逻辑层):
+	处理核心业务逻辑
+	例：class FmsFinancialInitializeService:
+    @classmethod
+    async def get_fms_financial_initialize_list_services(
+        cls, query_db: AsyncSession, query_object: FmsFinancialInitializePageQueryModel, is_page: bool = False
+    ):
+        # 调用 DAO 层获取数据
+        fms_financial_initialize_list_result = await FmsFinancialInitializeDao.get_fms_financial_initialize_list(query_db, query_object, is_page)
+        return fms_financial_initialize_list_result
+
+做的事：
+编排业务逻辑
+可能调用多个 DAO
+事务管理
+异常处理
+
+```
+
+```python
+DAO (数据访问层):
+	直接与数据库交互，执行 SQL
+	例：    @classmethod
+    async def get_fms_financial_initialize_list(cls, db: AsyncSession, query_object: FmsFinancialInitializePageQueryModel, is_page: bool = False):
+        query = (
+            select(FmsFinancialInitialize)
+            .where(
+                FmsFinancialInitialize.config_id == query_object.config_id if query_object.config_id else True,
+                # ... 各种查询条件
+            )
+            .order_by(FmsFinancialInitialize.id)
+        )
+        fms_financial_initialize_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
+        return fms_financial_initialize_list
+
+做的事：
+构建 SQL 查询
+调用 ORM 模型
+分页处理
+
+```
+
+```python
+DO / Entity (数据对象):
+	定义数据库表结构映射
+	例：    class FmsFinancialInitialize(Base):
+    __tablename__ = 'fms_financial_initialize'
+
+    id = Column(String(64), primary_key=True, default=IdUtil.get_snowflake_id)
+    config_id = Column(String(20), nullable=False)
+    broker_name = Column(String(100), nullable=False)
+    # ... 更多字段
+做的事：
+映射数据库表
+定义字段类型
+关联约束
+```
+
+```python
+VO (视图对象):
+	API 请求/响应的数据结构定义
+	例：    class FmsFinancialInitializeModel(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, from_attributes=True)
+
+    id: Optional[str] = Field(default=None, description='主键ID')
+    config_id: Optional[str] = Field(default=None, description='券商配置表ID')
+做的事：
+请求参数校验
+响应数据结构
+字段别名转换（snake_case ↔ camelCase）
+```
+
+## 为什么需要分层？
+
+| 好处     | 说明                             |
+| :------- | :------------------------------- |
+| 职责分离 | 每层只做自己的事，易于维护       |
+| 代码复用 | Service 可被多个 Controller 调用 |
+| 易于测试 | 可以单独测试每层逻辑             |
+| 团队协作 | 前后端分离，后端分层开发         |
+
+```tex
+controller几乎不做业务处理，更像是一个协调者，简单来说它只接收请求，返回响应，就是不同的前端接口要调哪个service函数，调完函数返回结果，就叫做返回响应
+
+service就是实际写业务逻辑代码的地方
+
+DAO也就是封装好的sql语句，有对数据库的基础CRUD，在service里面处理业务的时候实际上就是在跟数据库打交道，直接调用DAO里面的函数即可
+
+DO和VO就是定义数据结构
+VO是前端和后端交互的数据结构，当前端发出请求到了controller时，controller会在这里收到VO的数据结构，同时返回响应给前端的时候用的也是VO
+
+DO是后端和数据库交互的数据结构，DAO的CRUD查库时用的数据结构就是DO的，将DO赋值之后映射到实际的数据库字段进行交互
+
+```
+
+```python
+前端调用URL：http://127.0.0.1:7798/api/user/create?username=ttttt&password=12344
+http://127.0.0.1:7798 + 前缀(/api/user) + 装饰器路径(/create)
+```
+
+controller编写
+
+```python
+from fastapi import APIRouter
+
+# 创建路由实例，prefix 统一添加 /api/user 前缀  这个叫路由前缀
+router = APIRouter(prefix="/api/user")
+
+@router.post("/create")#post接口1 获取
+def create_user(username: str, password: str, email: str = None):
+    # TODO: 写业务逻辑
+    print("username",username,"password",password)
+    return {"id": 101, "username": username}
+
+@router.get("/{id}")#get接口2
+def get_user(id: int):
+    # TODO: 写业务逻辑
+    # id 参数从 URL 路径中提取，如 /api/user/1
+    return {"id": id, "username": "张三"}
+
+这两个接口的写法分别对应路径参数 query(查询)参数
+路径参数：URL的一部分 @router.get("/{id}") http://127.0.0.1:8000/api/user/1
+查询参数：URL中?的后半部分 @router.get("/") http://127.0.0.1:8000/api/user?id=1
+
+```
+
