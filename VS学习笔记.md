@@ -80,6 +80,8 @@ VS包含某个cpp源文件则需要将文件添加进来
     #define _LIBRARY_API_ __declspec(dllexport)//
     #else
     #define _LIBRARY_API_ __declspec(dllimport)//
+
+	在源文件中第一个包含预编译头pch.h 在pch.h中包含所有的.h头文件即可
     
     这个就是告诉编译器，是要把当前的动态库项目编译成对外提供接口的动态库，还是需要接口的动态库
     如果定义了_BE_OUT_DLL_这个宏，那么就定义_LIBRARY_API_这个宏为__declspec(dllexport),__declspec(dllexport),__declspec(dllexport)表示当前动态库编译为向外提供接口的动态库，同时生成一个.lib静态库，静态库提供指向动态库
