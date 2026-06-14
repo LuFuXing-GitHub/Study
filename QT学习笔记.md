@@ -578,3 +578,14 @@ Qt中数据库句柄QsqlDataBase不能跨线程使用，无论是通过信号与
 	显示头像：用户下一次登录的时候会请求显示头像，则服务器会查找对应账号的图片存储的地址，找到该图片将图片发送给客户端
 ```
 
+Qt+Vs开发中遇到的问题
+
+```C++
+1.中文乱码问题：ui.textEdit->setText("请在此输入内容");
+	一般这种会出现乱码，解决方式为：ui.textEdit->setText(u8"请在此输入内容");
+    若是还解决不了：打开 VS2022 → 顶部菜单 工具 → 选项
+    展开 环境 → 文档
+    勾选：使用 UTF-8 编码（不带签名）
+```
+
+![image-20260614175940966](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20260614175940966.png)
