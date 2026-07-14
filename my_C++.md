@@ -14,7 +14,7 @@ STL库：模板库
 静态强转：static_cast<int>(c1); -- 将c1强转成int 括号跟要转的变量或表达式
 const
 reinterpret
- 
+
 
 引用：取别名 两个变量指向同一片内存
 int aa = 100;
@@ -2673,5 +2673,92 @@ map:
         
         return 0;
     }
+```
+
+std::move
+
+```c++
+std::move
+    移动语句 他的功能仅是强制将变量x左值转化为右值引用
+    左值：有名字 能取到地址的变量（p1、局部变量、全局变量）
+    右值：临时对象、没有持久名字，用完就销毁
+    
+    // 临时对象是右值，自动触发移动，不用手动move
+std::unique_ptr<Data> p = std::make_unique<Data>(99);
+std::unique_ptr<Data> p2 = std::make_unique<Data>(100); // 右边临时，自动移动
+
+
+	string s1 = "很长很长的文本...";
+    string s2 = move(s1); 
+    // s1内部字符数组直接转移给s2，不拷贝堆字符，速度极快
+    cout << s1; // s1变为空字符串
+
+	move的本质只是类型转换工具，本身不移动任何数据；
+    
+```
+
+弱指针weak_ptr
+
+```c++
+weak_ptr是为了解决shared_ptr循环引用导致内存泄漏的问题
+    例：
+    #include <memory>
+    #include <iostream>
+    using namespace std;
+
+    struct Node {
+        int id;
+        shared_ptr<Node> next; // 互相持有shared，循环引用泄漏
+        Node(int x) : id(x) { cout << "构造Node" << id << endl; }
+        ~Node() { cout << "析构Node" << id << endl; }
+    };
+
+    int main() {
+        auto a = make_shared<Node>(1);
+        auto b = make_shared<Node>(2);
+        a->next = b;
+        b->next = a;
+        // main函数结束，a、b销毁，但a、b内部的shared_ptr互相引用
+        // use_count 都是1，不会调用析构 → 内存泄漏
+        return 0;
+    }
+
+
+    struct Node {
+        int id;
+        shared_ptr<Node> next;
+        weak_ptr<Node> prev; // 弱指针，不增加计数
+        Node(int x) : id(x) { cout << "构造Node" << id << endl; }
+        ~Node() { cout << "析构Node" << id << endl; }
+    };
+
+    int main() {
+        auto a = make_shared<Node>(1);
+        auto b = make_shared<Node>(2);
+
+        a->next = b;
+        b->prev = a; // weak_ptr接收shared_ptr
+
+        // 使用weak_ptr必须lock()提升为shared_ptr再访问
+        if (auto p = b->prev.lock()) {
+            cout << "b的前驱id = " << p->id << endl;
+        }
+
+        // 函数退出，a、b计数归零，正常析构释放
+        return 0;
+    }
+
+	正常使用很简单：
+        std::shared_ptr<int> p = std::make_shared<int>(10);
+        std::cout << "Value: " << *p << std::endl;
+
+        std::weak_ptr<int> wp = p; // Create a weak_ptr from the shared_ptr
+        std::cout << "Use count: " << p.use_count() << std::endl; // Output the use count
+
+        std::cout << "Use count: " << wp.use_count() << std::endl; // Output the use count of the weak_ptr
+        std::cout << "Value: " << *(wp.lock()) << std::endl;
+	使用之前要调用lock函数暂时将其提升为shared_ptr之后 再进行正常使用
+    判断该指针是否已销毁调用expired函数 等价于 lock() == nullptr    
+
 ```
 
